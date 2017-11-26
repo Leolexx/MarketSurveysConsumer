@@ -14,6 +14,12 @@ import com.mrk.excp.ConnectionError;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Spring Boot Application - Market Survey Consumer
+ * @author Leo
+ * @version 1.2
+ *
+ */
 @Slf4j
 @SpringBootApplication
 @EnableAutoConfiguration(exclude={MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
@@ -25,6 +31,11 @@ public class MarketSurveysConsumerApplication {
 	
 	
 	
+	/**
+	 * Command Line runner for initialization purposes
+	 * @param ctx - app.context
+	 * @return
+	 */
 	@Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
         return args -> {

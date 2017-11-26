@@ -11,6 +11,11 @@ import com.mrk.domain.MarketSurvey;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Consumer REST-Controller
+ * @author Leo
+ * @version 1.0
+ */
 @Slf4j
 @RestController
 public class ConsumerRestController {

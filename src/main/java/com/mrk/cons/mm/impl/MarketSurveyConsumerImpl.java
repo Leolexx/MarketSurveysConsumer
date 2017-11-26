@@ -34,6 +34,11 @@ import com.mrk.excp.ConnectionError;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Service for communcations with Surveys Provider
+ * @author Leo
+ * @version 1.0
+ */
 @Slf4j
 @Service
 public class MarketSurveyConsumerImpl implements MarketSurveyConsumer {
@@ -122,7 +127,7 @@ public class MarketSurveyConsumerImpl implements MarketSurveyConsumer {
  	 * @param channel - Way of delivery
  	 * @param frequency - Subscribing frequency
  	 * @param isClearPrev - Clear previuos subscriptions  
- 	 * @return
+ 	 * @return RequestMessage
  	 */
 	public RequestMessage buildMessage(String subject, String gender, 
 			String currency, String country, Integer ageFrom, Integer ageTo, 
