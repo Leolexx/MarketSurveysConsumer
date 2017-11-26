@@ -16,22 +16,30 @@ import lombok.extern.slf4j.Slf4j;
 public class ConsumerRestController {
 
 	/**
-	 * Get survey from Provider 
+	 * Post survey to Consumer 
 	 * @param lstSurvey - List of Surveys
-	 * @return - Survey data
 	 */
 	@RequestMapping(value = "/postSurvey", method = RequestMethod.POST, consumes = "application/json")
- 	public String postSurvey(@RequestBody List<MarketSurvey> lstSurvey) {
+ 	public void postSurvey(@RequestBody List<MarketSurvey> lstSurvey) {
 		log.info("");
  		log.info("Market Survey Consumer: GOT /postSurvey:");
  		log.info("SUBSCRIPTION:");
  		log.info("size={}", lstSurvey.size());
  		
  		lstSurvey.stream().forEach(t-> {
- 	 		log.info("Survey.Id={}", t.getId());
+ 	 		log.info("----------------------------------");
+ 	 		log.info("Survey:");
+ 	 		log.info("Subject={}", t.getSubject());
+ 	 		log.info("Id={}", t.getId());
+ 	 		log.info("Age={}", t.getAge());
+ 	 		log.info("Gender={}", t.getGender());
+ 	 		log.info("Income={}", t.getIncome());
+ 	 		log.info("Currency={}", t.getCurrency());
+ 	 		log.info("County={}", t.getCountry());
+ 	 		log.info("Any other data={}", t.getAnyData());
+ 	 		log.info("----------------------------------");
  		});
  		
- 		return "OK";
  	}
 
 	

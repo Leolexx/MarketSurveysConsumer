@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.mrk.cons.mm.MarketSurveyConsumer;
@@ -23,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, properties = {"server.port=8089"})
+@TestPropertySource(locations="classpath:test.properties")
 public class MarketSurveysConsumerApplicationTests {
 
 	@Autowired 
@@ -32,45 +34,46 @@ public class MarketSurveysConsumerApplicationTests {
 	public void contextLoads() throws ConnectionError {
 		
 		// Consumer:
-		// Pull a list of Survey's subjects from provider
+		// 
+		log.info("--- Pull a list of Survey's subjects from provider---");
 		consumer.pullAllSurveySubject();
 		
 		// Build a Request message
 		// Subject, gender, country, currency, ageFrom, ageTo, incomeFrom, incomeTo, channel, frequency, 
-		RequestMessage req = consumer.buildMessage("81111601", "M", "RUB", "RU", 21, 29, 34000, 40000, null, null, false);
+		RequestMessage req = consumer.buildMessage("81111601", "F", "RUB", "RU", 21, 29, 34000, 40000, null, null, false);
 		// Pull Surveys according request message
 		consumer.pullSurvey(req);
 		
-		// Subscribing
+		log.info("----------------- Subscribing --------------------");
 		List<String> channel = new ArrayList<String>();
 		channel.add("mail");
 		channel.add("rest");
 		channel.add("ftp");
 		
- 		req = consumer.buildMessage("81111601", "F", "USD", "US", 21, 29, 34000, 60000, channel, "minute", false); //TODO (minute)
+ 		req = consumer.buildMessage("81111601", "F", "USD", "US", 21, 29, 34000, 60000, channel, "minute", false);
 		consumer.pullSurvey(req);
 
 		req = consumer.buildMessage("81111608", "M", "RUB", "RU", 21, 55, 30000, 140000, channel, "minute", false);
 		consumer.pullSurvey(req);
 
-		// Wait for Provider show it's activity
+		log.info("-------- Waiting for Provider's activity ---------");
  		try {
-			Thread.sleep(30000);
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
- 		// Request new subscription, clear all previous
+		log.info("---Request new subscription, clear all previous---");
  		req = consumer.buildMessage("81111607", "M", "USD", "US", 21, 50, 36000, 60000, channel, "minute", true);
 		consumer.pullSurvey(req);
 
-		// Wait for Provider show it's activity
+		log.info("-------- Waiting for Provider's activity ---------");
  		try {
-			Thread.sleep(160000);
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
- 		// End of test
+		log.info("----------------- End of test --------------------");
 	}
 
 }

@@ -38,6 +38,16 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class MarketSurveyConsumerImpl implements MarketSurveyConsumer {
 
+	// From application.properties:
+	// selftest - 1 - do a self-test 
+	@Value("${selftest}")
+	private String selftest;
+	// current port
+	@Value("${server.port}")
+	int port;
+	// consumer Id 
+	@Value("${consumer.id}")
+	int consumerId;
 	/**
 	 * Get all available survey's subjects from Survey Provider
 	 * @throws ConnectionError 
@@ -55,7 +65,6 @@ public class MarketSurveyConsumerImpl implements MarketSurveyConsumer {
         List<ResponceAvailSurvey> resp = Arrays.asList(respArr);
         log.info("Available surveys from provider:");
         resp.forEach(t-> log.info(t.getSubject()));
-        log.info("Pulled...");
  		
 	}
 	
@@ -69,7 +78,7 @@ public class MarketSurveyConsumerImpl implements MarketSurveyConsumer {
  		log.info("");
  		
  		RestTemplate restTemplate = new RestTemplate();
- 		String url = "http://localhost:8088/getSurveyByReq"; // TODO
+ 		String url = "http://localhost:8088/getSurveyByReq";
  		log.info("Market Survey Consumer: SEND {}", url);
  		HttpEntity<RequestMessage> requestEntity = new HttpEntity<RequestMessage>(req);
  		ResponseEntity<List<MarketSurvey>> resp;
@@ -85,11 +94,18 @@ public class MarketSurveyConsumerImpl implements MarketSurveyConsumer {
  		log.info("Market Survey Consumer:");
         log.info("GOT Surveys from provider:");
  		resp.getBody().forEach(t-> {
- 			log.info("Survey.id={}", t.getId());
- 			log.info("Survey.subject={}", t.getSubject());
+ 	 		log.info("----------------------------------");
+ 	 		log.info("Survey:");
+ 	 		log.info("Subject={}", t.getSubject());
+ 	 		log.info("Id={}", t.getId());
+ 	 		log.info("Age={}", t.getAge());
+ 	 		log.info("Gender={}", t.getGender());
+ 	 		log.info("Income={}", t.getIncome());
+ 	 		log.info("Currency={}", t.getCurrency());
+ 	 		log.info("County={}", t.getCountry());
+ 	 		log.info("Any other data={}", t.getAnyData());
+ 	 		log.info("----------------------------------");
  		});
- 		
-        log.info("Pulled...");
  		
 	}
 
@@ -116,14 +132,17 @@ public class MarketSurveyConsumerImpl implements MarketSurveyConsumer {
  		
  		// Requester information
 		Requester requester = new Requester();
-		requester.setId("1");
+		// Requseter (Consumer) Id
+		requester.setId(String.valueOf(consumerId));
+		// Name
 		requester.setName("Requester-1");
 		req.setRequester(requester);
 		if (channel !=null ) {
 			Subscription subscription = new Subscription();
 			subscription.setChannel(channel);
 			subscription.setFrequency(frequency);
-			subscription.setEndPoint("http://localhost:8089/"); //TODO
+			// set current port
+			subscription.setEndPoint("http://localhost:"+String.valueOf(port));
 			subscription.setIsClearPrev(isClearPrev);
 			req.setSubscription(subscription );
 		}
@@ -163,49 +182,51 @@ public class MarketSurveyConsumerImpl implements MarketSurveyConsumer {
 		return req;
 	}
 
-	@Value("${selftest}")
-	private String selftest;
-	
+	/**
+	 * Self - test
+	 */
 	@Override
 	public void selfTest() throws ConnectionError {
-		if (selftest!=null || selftest.equals("1")) {
-			log.info("Start self-test");
+		// check application.properties selftest
+		if (selftest!=null && selftest.equals("1")) {
+			log.info("Start self-test={}", selftest);
 			// Consumer:
-			// Pull a list of Survey's subjects from provider
+			// 
+			log.info("--- Pull a list of Survey's subjects from provider---");
 			pullAllSurveySubject();
 			
 			// Build a Request message
 			// Subject, gender, country, currency, ageFrom, ageTo, incomeFrom, incomeTo, channel, frequency, 
-			RequestMessage req = buildMessage("81111601", "M", "RUB", "RU", 21, 29, 34000, 40000, null, null, false);
+			RequestMessage req = buildMessage("81111601", "F", "RUB", "RU", 21, 29, 34000, 40000, null, null, false);
 			// Pull Surveys according request message
 			pullSurvey(req);
 			
-			// Subscribing
+			log.info("----------------- Subscribing --------------------");
 			List<String> channel = new ArrayList<String>();
 			channel.add("mail");
 			channel.add("rest");
 			channel.add("ftp");
 			
-	 		req = buildMessage("81111601", "F", "USD", "US", 21, 29, 34000, 60000, channel, "minute", false); //TODO (minute)
+	 		req = buildMessage("81111601", "F", "USD", "US", 21, 29, 34000, 60000, channel, "minute", false);
 			pullSurvey(req);
-	
+
 			req = buildMessage("81111608", "M", "RUB", "RU", 21, 55, 30000, 140000, channel, "minute", false);
 			pullSurvey(req);
-	
-			// Wait for Provider show it's activity
+
+			log.info("-------- Waiting for Provider's activity ---------");
 	 		try {
-				Thread.sleep(30000);
+				Thread.sleep(10000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-	
-	 		// Request new subscription, clear all previous
+
+			log.info("--- Request new subscription, clear all previous---");
 	 		req = buildMessage("81111607", "M", "USD", "US", 21, 50, 36000, 60000, channel, "minute", true);
 			pullSurvey(req);
-	
-			// Wait for Provider show it's activity
+
+			log.info("-------- Waiting for Provider's activity ---------");
 	 		try {
-				Thread.sleep(160000);
+				Thread.sleep(10000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
